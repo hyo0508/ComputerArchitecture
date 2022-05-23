@@ -6,3 +6,5 @@ test/
 .DS_Store
 project1/assembler/assemble
 project1/simulator/simulate
+*.mc
+*.result

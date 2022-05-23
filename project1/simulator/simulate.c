@@ -11,12 +11,6 @@ struct inst_t {
     unsigned int code;
 
     struct {
-      unsigned int reserved : 22;
-      unsigned int opcode : 3;
-      unsigned int unused : 7;
-    } common;
-
-    struct {
       unsigned int destReg : 3;
       unsigned int unused1 : 13;
       unsigned int regB : 3;
@@ -87,48 +81,32 @@ int main(int argc, char *argv[]) {
     printf("memory[%d]=%d\n", state.numMemory, state.mem[state.numMemory]);
   }
 
-  for (numInstructions = 0; ; numInstructions++) {
+  numInstructions = 0;
+  for (;;) {
+    numInstructions++;
+
     printState(&state);
+    instruction.code = state.mem[state.pc++];
 
-    instruction.code = state.mem[state.pc];
+    if (instruction.o.opcode == 0b000)
+      state.reg[instruction.r.destReg] = state.reg[instruction.r.regA] + state.reg[instruction.r.regB];
+    else if (instruction.o.opcode == 0b001)
+      state.reg[instruction.r.destReg] = ~(state.reg[instruction.r.regA] | state.reg[instruction.r.regB]);
+    else if (instruction.o.opcode == 0b010)
+      state.reg[instruction.i.regB] = state.mem[state.reg[instruction.i.regA] + instruction.i.offset];
+    else if (instruction.o.opcode == 0b011)
+      state.mem[state.reg[instruction.i.regA] + instruction.i.offset] = state.reg[instruction.i.regB];
+    else if (instruction.o.opcode == 0b100)
+      state.pc += instruction.i.offset * (state.reg[instruction.i.regA] == state.reg[instruction.i.regB]);
+    else if (instruction.o.opcode == 0b101)
+      state.reg[instruction.j.regB] = state.pc, state.pc = state.reg[instruction.j.regA]; 
+    else if (instruction.o.opcode == 0b110)
+      break;
+    else if (instruction.o.opcode == 0b111)
+      ;
 
-    switch (instruction.common.opcode) {
-      case 0b000:
-        state.pc += 1;
-        state.reg[instruction.r.destReg] = state.reg[instruction.r.regA] + state.reg[instruction.r.regB];
-        break;
-      case 0b001:
-        state.pc += 1;
-        state.reg[instruction.r.destReg] = ~(state.reg[instruction.r.regA] | state.reg[instruction.r.regB]);
-        break;
-      case 0b010:
-        state.pc += 1;
-        state.reg[instruction.i.regB] = state.mem[state.reg[instruction.i.regA] + instruction.i.offset];
-        break;
-      case 0b011:
-        state.pc += 1;
-        state.mem[state.reg[instruction.i.regA] + instruction.i.offset] = state.reg[instruction.i.regB];
-        break;
-      case 0b100:
-        state.pc += 1;
-        if (state.reg[instruction.i.regA] == state.reg[instruction.i.regB]) state.pc += instruction.i.offset;
-        break;
-      case 0b101:
-        state.pc += 1;
-        state.reg[instruction.j.regB] = state.pc;
-        state.pc = state.reg[instruction.j.regA];
-        break;
-      case 0b110:
-        state.pc += 1;
-        goto exit;
-        break;
-      case 0b111:
-        state.pc += 1;
-        break;
-    }
   }
 
-  exit:
   printf("machine halted\n");
   printf("total of %d instructions executed\n", numInstructions);
   printf("final state of machine:\n");

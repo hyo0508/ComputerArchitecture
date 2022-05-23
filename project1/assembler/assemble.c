@@ -170,9 +170,7 @@ int firstPass(FILE *inFilePtr) {
 
 struct inst_t rTypeInstruction(int opcode, char *regA, char *regB,
                                char *destReg) {
-  struct inst_t instruction = {
-      0,
-  };
+  struct inst_t instruction = { 0, };
   instruction.r.opcode = opcode;
   instruction.r.regA = atoi(regA);
   instruction.r.regB = atoi(regB);
@@ -182,9 +180,7 @@ struct inst_t rTypeInstruction(int opcode, char *regA, char *regB,
 
 struct inst_t iTypeInstruction(int opcode, char *regA, char *regB,
                                char *offset, int currentAddr) {
-  struct inst_t instruction = {
-      0,
-  };
+  struct inst_t instruction = { 0, };
   if (atoi(offset) < -0x00008000 || atoi(offset) >= 0x00008000) {
     printf("error: offsetFields that don't fit in 16 bits\n");
     printf("%s\n", offset);
@@ -201,19 +197,13 @@ struct inst_t iTypeInstruction(int opcode, char *regA, char *regB,
       printf("%s\n", offset);
       exit(1);
     }
-    if (opcode == 0b100) {
-      instruction.i.offset = findLabelAddress(offset) - (currentAddr+1);
-    } else {
-      instruction.i.offset = findLabelAddress(offset);
-    }
+    instruction.i.offset = findLabelAddress(offset) - (currentAddr+1);
   }
   return instruction; 
 }
 
 struct inst_t jTypeInstruction(int opcode, char *regA, char *regB) {
-  struct inst_t instruction = {
-      0,
-  };
+  struct inst_t instruction = { 0, };
   instruction.j.opcode = opcode;
   if (isNumber(regA)) {
     instruction.j.regA = atoi(regA);
@@ -239,9 +229,7 @@ struct inst_t jTypeInstruction(int opcode, char *regA, char *regB) {
 }
 
 struct inst_t oTypeInstruction(int opcode) {
-  struct inst_t instruction = {
-      0,
-  };
+  struct inst_t instruction = { 0, };
   instruction.o.opcode = opcode;
   return instruction;
 }
@@ -285,9 +273,9 @@ int secondPass(FILE *inFilePtr, FILE *outFilePtr) {
       else if (!strcmp(opcode, "nor"))
         instruction = rTypeInstruction(0b001, arg0, arg1, arg2);
       else if (!strcmp(opcode, "lw"))
-        instruction = iTypeInstruction(0b010, arg0, arg1, arg2, currentAddr);
+        instruction = iTypeInstruction(0b010, arg0, arg1, arg2, -1);
       else if (!strcmp(opcode, "sw"))
-        instruction = iTypeInstruction(0b011, arg0, arg1, arg2, currentAddr);
+        instruction = iTypeInstruction(0b011, arg0, arg1, arg2, -1);
       else if (!strcmp(opcode, "beq"))
         instruction = iTypeInstruction(0b100, arg0, arg1, arg2, currentAddr);
       else if (!strcmp(opcode, "jalr"))
