@@ -3,3 +3,4 @@
 ignore/
 test.c
 test/
+.DS_Store
