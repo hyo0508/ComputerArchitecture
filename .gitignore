@@ -1,2 +1,5 @@
+.vscode/
 .devcontainer/
+ignore/
 test.c
+test/
