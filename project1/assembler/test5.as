@@ -10,7 +10,7 @@ fact  sw  5 3 st      save ra
       add 5 1 5     
       beq 4 0 L1      test for n == 0
       add 4 2 4       if not, decrement n
-      lw  0 7 facAd    |
+      lw  0 7 facAd     |
       jalr  7 3         | recursive call
 ret   add 5 2 5         |
       lw  5 4 st        | restore a0
